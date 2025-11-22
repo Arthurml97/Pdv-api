@@ -1,6 +1,6 @@
 # 🛒 PDV API - Sistema de Ponto de Venda
 
-> Status: 🚧 Em Desenvolvimento (Fase 2 Concluída - Segurança & Usuários)
+> Status: 🚧 Em Desenvolvimento (Fase 3 Concluída - Core da Venda)
 
 Uma API REST robusta desenvolvida com **Java 21** e **Spring Boot 3** para gerenciar as operações de caixa de um supermercado. O projeto foca em boas práticas de engenharia de software, segurança (Spring Security) e escalabilidade.
 
