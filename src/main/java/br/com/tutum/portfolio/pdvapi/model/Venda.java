@@ -8,7 +8,7 @@ import java.util.List;
 @Entity
 @Table(name = "vendas")
 public class Venda {
-    
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -22,7 +22,7 @@ public class Venda {
     @JoinColumn(name = "usuario_id", nullable = false)
     private Usuario usuario;
 
-    //Lista de itens da venda. Mappedby = "venda", o dono é o lado do ItemVenda
+    // Lista de itens da venda. Mappedby = "venda", o dono é o lado do ItemVenda
     // CascadeType.ALL: Se eu salvar a venda, salva os itens automaticamente
     @OneToMany(mappedBy = "venda", cascade = CascadeType.ALL)
     private List<ItemVenda> itens = new ArrayList<>();
@@ -30,7 +30,7 @@ public class Venda {
     // Total da venda, a soma dos itens
     @Column(nullable = false)
     private Double valorTotal = 0.0;
-    
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private StatusVenda status = StatusVenda.ABERTA; // Sempre será aberta o começo da Venda
@@ -38,6 +38,10 @@ public class Venda {
     @Enumerated(EnumType.STRING)
     @Column(name = "forma_pagamento")
     private FormaPagamento formaPagamento; // Começa nulo e preenche no final
+
+    @ManyToOne
+    @JoinColumn(name = "caixa_id", nullable = false)
+    private Caixa caixa;
 
     // Constutor vazio, getters e setters
 
@@ -100,5 +104,13 @@ public class Venda {
 
     public void setFormaPagamento(FormaPagamento formaPagamento) {
         this.formaPagamento = formaPagamento;
+    }
+
+    public Caixa getCaixa() {
+        return caixa;
+    }
+
+    public void setCaixa(Caixa caixa) {
+        this.caixa = caixa;
     }
 }

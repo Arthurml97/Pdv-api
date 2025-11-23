@@ -5,9 +5,12 @@ import br.com.tutum.portfolio.pdvapi.model.Produto;
 import br.com.tutum.portfolio.pdvapi.model.Usuario;
 import br.com.tutum.portfolio.pdvapi.model.Venda;
 import br.com.tutum.portfolio.pdvapi.model.StatusVenda;
+import br.com.tutum.portfolio.pdvapi.model.Caixa;
+import br.com.tutum.portfolio.pdvapi.model.FormaPagamento;
 import br.com.tutum.portfolio.pdvapi.repository.ProdutoRepository;
 import br.com.tutum.portfolio.pdvapi.repository.UsuarioRepository;
 import br.com.tutum.portfolio.pdvapi.repository.VendaRepository;
+import br.com.tutum.portfolio.pdvapi.repository.CaixaRepository;
 import br.com.tutum.portfolio.pdvapi.service.exception.RegraDeNegocioException;
 import br.com.tutum.portfolio.pdvapi.dto.AdicionarItemDTO;
 import br.com.tutum.portfolio.pdvapi.dto.FinalizarVendaDTO;
@@ -17,7 +20,7 @@ import org.springframework.transaction.annotation.Transactional; // Função imp
 
 @Service
 public class VendaService {
-    
+
     @Autowired
     private VendaRepository vendaRepository;
 
@@ -27,15 +30,24 @@ public class VendaService {
     @Autowired
     private UsuarioRepository usuarioRepository;
 
+    @Autowired
+    private CaixaRepository caixaRepository;
+
+    @Autowired
+    private CaixaService caixaService;
+
     // Cria uma nova venda vazia para o usuário atual
 
     public Venda abrirVenda(String usernameUsuario) {
         Usuario usuario = usuarioRepository.findByUsername(usernameUsuario)
                 .orElseThrow(() -> new RegraDeNegocioException("Usuário não encontrado"));
-            
+
+        Caixa caixa = caixaService.buscarCaixaAberto(usernameUsuario);
+
         Venda venda = new Venda();
         venda.setUsuario(usuario);
-        
+        venda.setCaixa(caixa);
+
         return vendaRepository.save(venda);
     }
 
@@ -46,7 +58,7 @@ public class VendaService {
         // 1 Passo: Buscar a venda
         Venda venda = vendaRepository.findById(idVenda)
                 .orElseThrow(() -> new RegraDeNegocioException("Venda não encontrada"));
-        
+
         // 2 Passo: Buscar o produto pelo código de barras
         Produto produto = produtoRepository.findByCodigoDeBarras(dto.getCodigoDeBarras())
                 .orElseThrow(() -> new RegraDeNegocioException("Produto não encontrado"));
@@ -60,12 +72,14 @@ public class VendaService {
 
         // 4 Passo: Adicionar na lista da venda
         venda.getItens().add(item);
-        
-        // 5 Passo: Recalcula o total da venda, pega o total atual + (quantidade*preçodoitemnovo)
+
+        // 5 Passo: Recalcula o total da venda, pega o total atual +
+        // (quantidade*preçodoitemnovo)
         double subtotalItem = item.getQuantidade() * item.getPrecoUnitario();
         venda.setValorTotal(venda.getValorTotal() + subtotalItem);
 
-        // 6 Passo: Salva tudo, e com o CascadeType.ALL (em Venda.java), salva o item também
+        // 6 Passo: Salva tudo, e com o CascadeType.ALL (em Venda.java), salva o item
+        // também
         return vendaRepository.save(venda);
     }
 
@@ -75,8 +89,9 @@ public class VendaService {
         // 1 Passo: Buscar a venda
         Venda venda = vendaRepository.findById(idVenda)
                 .orElseThrow(() -> new RegraDeNegocioException("Venda não encontrada"));
-        
-        // 2 Passo: Buscar o item dentro da lista daquela venda, usando o stream do Java para filtrar a lista em memória
+
+        // 2 Passo: Buscar o item dentro da lista daquela venda, usando o stream do Java
+        // para filtrar a lista em memória
         ItemVenda itemParaRemover = venda.getItens().stream()
                 .filter(item -> item.getId().equals(idItem))
                 .findFirst()
@@ -99,7 +114,7 @@ public class VendaService {
         // 1 Passo: Buscar a venda
         Venda venda = vendaRepository.findById(idVenda)
                 .orElseThrow(() -> new RegraDeNegocioException("Venda não encontrada"));
-        
+
         // 2 Passo: Saber se a venda ja foi fechada
         if (venda.getStatus() != StatusVenda.ABERTA) {
             throw new RegraDeNegocioException("Esta venda ja foi finalizada ou cancelada");
@@ -109,7 +124,18 @@ public class VendaService {
         venda.setFormaPagamento(dto.getFormaPagamento());
         venda.setStatus(StatusVenda.FINALIZADA);
 
-        // 4 Passo: Salvar
+        // 4 Passo: Atualizar o saldo do caixa
+        if (dto.getFormaPagamento() == FormaPagamento.DINHEIRO) {
+            Caixa caixa = venda.getCaixa(); // Pega o caixa vinculado a esta venda
+
+            // 4.1 Passo: Somar o total da venda no saldo atual do caixa
+            double novoSaldo = caixa.getSaldoAtual() + venda.getValorTotal();
+            caixa.setSaldoAtual(novoSaldo);
+
+            caixaRepository.save(caixa);
+        }
+
+        // 5 Passo: Salvar
         return vendaRepository.save(venda);
     }
 }

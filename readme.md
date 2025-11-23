@@ -48,9 +48,10 @@ Desenvolvi um roadmap inicial com as funções essenciais, mas o projeto evoluir
 - [x] **Finalização:** Encerramento da venda com escolha de forma de pagamento.
 - [x] **Segurança Avançada:** Implementação de `@PreAuthorize` para proteger remoção de itens.
 
-### ⚪ Fase 4: Gestão de Caixa e Financeiro (Próximo Passo)
-- [ ] **Controle de Turno:** Endpoints para Abertura e Fechamento de Caixa (Turno do dia).
-- [ ] **Sistema de Sangria:** Monitoramento de saldo em tempo real e retirada de valores.
+### 🚧 Fase 4: Gestão de Caixa e Financeiro (Em Andamento)
+- [x] **Controle de Turno:** Abertura e Fechamento de Caixa.
+- [x] **Fluxo de Caixa:** Atualização automática do saldo ao vender em Dinheiro.
+- [x] **Sistema de Sangria:** Retirada de valores com validação de saldo.
 - [ ] **Fidelidade:** Cadastro de Cliente (CPF) e pontuação na venda.
 - [ ] **Nota Fiscal:** Simulação de emissão de documento fiscal.
 
