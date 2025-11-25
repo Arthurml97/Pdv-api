@@ -1,6 +1,6 @@
 # 🛒 PDV API - Sistema de Ponto de Venda
 
-> Status: 🚧 Em Desenvolvimento (Fase 2 Concluída - Segurança & Usuários)
+> Status: API FINALIZADA, pronta para produção. Próximo passo: implementar o frontend.
 
 Uma API REST robusta desenvolvida com **Java 21** e **Spring Boot 3** para gerenciar as operações de caixa de um supermercado. O projeto foca em boas práticas de engenharia de software, segurança (Spring Security) e escalabilidade.
 
@@ -57,9 +57,9 @@ Desenvolvi um roadmap inicial com as funções essenciais, mas o projeto evoluir
 - [x] **Cadastro de Clientes:** Registro de nome e CPF.
 - [x] **Pontuação:** Cálculo automático de pontos (Cashback) ao finalizar venda.
 
-### ⚪ Fase 6: Finalização e Documentação (Próximo Passo)
-- [ ] **Documentação Automática:** Swagger UI / OpenAPI.
-- [ ] **Nota Fiscal:** Simulação de emissão de documento fiscal (XML/JSON).
+### ✅ Fase 6: Finalização e Documentação (Concluído)
+- [x] **Documentação Automática:** Swagger UI / OpenAPI configurado e seguro.
+- [x] **Nota Fiscal:** Simulação de emissão de documento fiscal (JSON com impostos e chave).
 
 ## 🛠️ Como Executar o Projeto
 

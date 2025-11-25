@@ -19,11 +19,12 @@ import static org.springframework.security.config.Customizer.withDefaults; // St
 import org.springframework.security.core.userdetails.UserDetailsService; // Interface que define algo que busca os usuários
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder; // Implementação específica do algoritmo de Hash BCrypt, sendo o mais utilizado e popular para criptografar senhas
 import org.springframework.security.crypto.password.PasswordEncoder; // Inteface genérica de codificador de senhas, podendo trocar o algoritmo no futuro se necessário
+
 @Configuration // Indica que essa classe é uma classe de configuração do Spring
 @EnableWebSecurity // Habilita a segurança web do Spring Security
 @EnableMethodSecurity
 public class SecurityConfig {
-    
+
     @Autowired
     private UserDetailsService userDetailsService;
 
@@ -31,27 +32,33 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
         http
-            .csrf(AbstractHttpConfigurer::disable) // Desabilita a proteção CSRF (Cross-Site Request Forgery)
-            .authorizeHttpRequests(auth -> auth // Configura as regras de autorização para requisições HTTP
-                .requestMatchers("/h2-console/**").permitAll() // Permite acesso livre às URLs do console H2
-                .requestMatchers("/api/usuarios").permitAll() // Permite acesso livro apenas ao cadastro de usuarios
-                .anyRequest().authenticated() // Exige autenticação para qualquer outra requisição
-            )
-            .httpBasic(withDefaults());
+                .csrf(AbstractHttpConfigurer::disable) // Desabilita a proteção CSRF (Cross-Site Request Forgery)
+                .authorizeHttpRequests(auth -> auth // Configura as regras de autorização para requisições HTTP
+                        .requestMatchers("/h2-console/**").permitAll() // Permite acesso livre às URLs do console H2
+                        .requestMatchers("/api/usuarios").permitAll() // Permite acesso livro apenas ao cadastro de
+                                                                      // usuarios
+                        // Liberar o Swagger
+                        .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
+                        .anyRequest().authenticated() // Exige autenticação para qualquer outra requisição
+                )
+                .httpBasic(withDefaults());
 
-        http.headers(headers -> headers.frameOptions(frame -> frame.disable())); // Permite que o console H2 seja carregado em um iframe da mesma origem
-        
+        http.headers(headers -> headers.frameOptions(frame -> frame.disable())); // Permite que o console H2 seja
+                                                                                 // carregado em um frame da mesma
+                                                                                 // origem
         return http.build(); // Constrói e retorna a cadeia de filtros de segurança configurada
     }
+
     @Bean // Cria a ferramenta de criptografia para usar em qualquer lugar
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
-    @Bean 
+
+    @Bean
     public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
         AuthenticationManagerBuilder auth = http.getSharedObject(AuthenticationManagerBuilder.class);
         auth.userDetailsService(userDetailsService)
-            .passwordEncoder(passwordEncoder());
+                .passwordEncoder(passwordEncoder());
         return auth.build();
     }
 }
