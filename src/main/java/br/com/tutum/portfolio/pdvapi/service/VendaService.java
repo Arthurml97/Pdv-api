@@ -7,10 +7,12 @@ import br.com.tutum.portfolio.pdvapi.model.Venda;
 import br.com.tutum.portfolio.pdvapi.model.StatusVenda;
 import br.com.tutum.portfolio.pdvapi.model.Caixa;
 import br.com.tutum.portfolio.pdvapi.model.FormaPagamento;
+import br.com.tutum.portfolio.pdvapi.model.Cliente;
 import br.com.tutum.portfolio.pdvapi.repository.ProdutoRepository;
 import br.com.tutum.portfolio.pdvapi.repository.UsuarioRepository;
 import br.com.tutum.portfolio.pdvapi.repository.VendaRepository;
 import br.com.tutum.portfolio.pdvapi.repository.CaixaRepository;
+import br.com.tutum.portfolio.pdvapi.repository.ClienteRepository;
 import br.com.tutum.portfolio.pdvapi.service.exception.RegraDeNegocioException;
 import br.com.tutum.portfolio.pdvapi.dto.AdicionarItemDTO;
 import br.com.tutum.portfolio.pdvapi.dto.FinalizarVendaDTO;
@@ -34,10 +36,12 @@ public class VendaService {
     private CaixaRepository caixaRepository;
 
     @Autowired
+    private ClienteRepository clienteRepository;
+
+    @Autowired
     private CaixaService caixaService;
 
     // Cria uma nova venda vazia para o usuário atual
-
     public Venda abrirVenda(String usernameUsuario) {
         Usuario usuario = usuarioRepository.findByUsername(usernameUsuario)
                 .orElseThrow(() -> new RegraDeNegocioException("Usuário não encontrado"));
@@ -120,22 +124,52 @@ public class VendaService {
             throw new RegraDeNegocioException("Esta venda ja foi finalizada ou cancelada");
         }
 
-        // 3 Passo: Atualização dos dados
+        // 3 Passo: Lógica de Fidelidade do CPF
+        if (dto.getCpfCliente() != null && !dto.getCpfCliente().isEmpty()) {
+            // Busca o cliente e lança um erro de que ele não existe
+            Cliente cliente = clienteRepository.findByCpf(dto.getCpfCliente())
+                    .orElseThrow(() -> new RegraDeNegocioException("Cliente não encontrado com este CPF"));
+
+            // 3.1 Passo: Vincular o cliente a venda
+            venda.setCliente(cliente);
+
+            // 3.2 Passo: Calcular os pontos a serem adicionados (R$ 5,00 = 5 pontos)
+            int pontosGanhos = venda.getValorTotal().intValue();
+
+            // 3.3 Passo: Somar o saldo do cliente
+            cliente.setSaldoPontos(cliente.getSaldoPontos() + pontosGanhos);
+
+            // 3.4 Passo: Salvar o cliente atualizado
+            clienteRepository.save(cliente);
+        }
+
+        // 4 Passo: Atualização dos dados
         venda.setFormaPagamento(dto.getFormaPagamento());
         venda.setStatus(StatusVenda.FINALIZADA);
 
-        // 4 Passo: Atualizar o saldo do caixa
+        // 5 Passo: Atualizar o saldo do caixa
         if (dto.getFormaPagamento() == FormaPagamento.DINHEIRO) {
             Caixa caixa = venda.getCaixa(); // Pega o caixa vinculado a esta venda
 
-            // 4.1 Passo: Somar o total da venda no saldo atual do caixa
+            // 5.1 Passo: Somar o total da venda no saldo atual do caixa
             double novoSaldo = caixa.getSaldoAtual() + venda.getValorTotal();
             caixa.setSaldoAtual(novoSaldo);
 
             caixaRepository.save(caixa);
         }
 
-        // 5 Passo: Salvar
+        // 6 Passo: Salvar
         return vendaRepository.save(venda);
+    }
+
+    // Método para listar todas as vendas (para conseguir conferir)
+    public java.util.List<Venda> listarTodas() {
+        return vendaRepository.findAll();
+    }
+
+    // Método para buscar uma venda específica pelo ID
+    public Venda buscarPorId(Long id) {
+        return vendaRepository.findById(id)
+                .orElseThrow(() -> new RegraDeNegocioException("Venda não encontrada"));
     }
 }

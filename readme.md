@@ -48,12 +48,18 @@ Desenvolvi um roadmap inicial com as funções essenciais, mas o projeto evoluir
 - [x] **Finalização:** Encerramento da venda com escolha de forma de pagamento.
 - [x] **Segurança Avançada:** Implementação de `@PreAuthorize` para proteger remoção de itens.
 
-### 🚧 Fase 4: Gestão de Caixa e Financeiro (Em Andamento)
-- [x] **Controle de Turno:** Abertura e Fechamento de Caixa.
+### ✅ Fase 4: Gestão de Caixa e Financeiro (Concluído)
+- [x] **Controle de Turno:** Endpoints para Abertura e Fechamento de Caixa.
 - [x] **Fluxo de Caixa:** Atualização automática do saldo ao vender em Dinheiro.
-- [x] **Sistema de Sangria:** Retirada de valores com validação de saldo.
-- [ ] **Fidelidade:** Cadastro de Cliente (CPF) e pontuação na venda.
-- [ ] **Nota Fiscal:** Simulação de emissão de documento fiscal.
+- [x] **Sistema de Sangria:** Monitoramento de saldo em tempo real e retirada de valores.
+
+### ✅ Fase 5: Fidelidade e Clientes (Concluído)
+- [x] **Cadastro de Clientes:** Registro de nome e CPF.
+- [x] **Pontuação:** Cálculo automático de pontos (Cashback) ao finalizar venda.
+
+### ⚪ Fase 6: Finalização e Documentação (Próximo Passo)
+- [ ] **Documentação Automática:** Swagger UI / OpenAPI.
+- [ ] **Nota Fiscal:** Simulação de emissão de documento fiscal (XML/JSON).
 
 ## 🛠️ Como Executar o Projeto
 
@@ -90,16 +96,27 @@ cd pdv-api
 
 O projeto utiliza **HTTP Basic Auth**. Para acessar rotas protegidas, é necessário enviar o cabeçalho de autenticação (`Authorization`).
 
-### 👤 Usuários
+### 👤 Usuários e Clientes
 | Método | Endpoint | Descrição | Acesso |
 |---|---|---|---|
-| `POST` | `/api/usuarios` | Cadastra um novo usuário (Supervisor/Atendente) | 🔓 Público (Inicialização) |
+| `POST` | `/api/usuarios` | Cadastra um funcionário (Supervisor/Atendente) | 🔓 Público |
+| `POST` | `/api/clientes` | Cadastra um cliente para fidelidade | 🔓 Público |
+| `GET` | `/api/clientes/{cpf}` | Consulta saldo de pontos do cliente | 🔓 Público |
 
 ### 📦 Produtos
 | Método | Endpoint | Descrição | Acesso |
 |---|---|---|---|
 | `GET` | `/api/produtos` | Lista todos os produtos | 🔒 Requer Login |
 | `POST` | `/api/produtos` | Cadastra um novo produto | 🔒 Requer Login |
+
+### 🛒 Vendas e Caixa
+| Método | Endpoint | Descrição | Acesso |
+|---|---|---|---|
+| `POST` | `/api/caixas/abrir` | Abre o turno do caixa | 🔒 Supervisor |
+| `POST` | `/api/caixas/sangria` | Retira valor do caixa | 🔒 Supervisor |
+| `POST` | `/api/vendas` | Inicia uma nova venda | 🔒 Requer Login |
+| `POST` | `/api/vendas/{id}/itens` | Adiciona item na venda | 🔒 Requer Login |
+| `POST` | `/api/vendas/{id}/finalizar` | Finaliza venda e gera pontos | 🔒 Requer Login |
 
 ## 🗂️ Estrutura do Projeto
 

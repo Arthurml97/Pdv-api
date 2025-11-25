@@ -43,6 +43,10 @@ public class Venda {
     @JoinColumn(name = "caixa_id", nullable = false)
     private Caixa caixa;
 
+    @ManyToOne
+    @JoinColumn(name = "cliente_id")
+    private Cliente cliente;
+
     // Constutor vazio, getters e setters
 
     public Venda() {
@@ -112,5 +116,13 @@ public class Venda {
 
     public void setCaixa(Caixa caixa) {
         this.caixa = caixa;
+    }
+
+    public Cliente getCliente() {
+        return cliente;
+    }
+
+    public void setCliente(Cliente cliente) {
+        this.cliente = cliente;
     }
 }
