@@ -14,11 +14,18 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer; // Auxiliar usada para desabilitar configurações padroes como por exemplo o CSRF dentro do Spring
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity; // Aplica níves de segurança diretamente para métodos individuais dentro das classes
 import org.springframework.security.web.SecurityFilterChain; // Filtros de segurança, sendo o resultado final da configuração do HttpSecurity
-import static org.springframework.security.config.Customizer.withDefaults; // Static import para usar as configurações padrão do Spring usado no .httpBasic(withDefaults()))
-// Criptografia e dados de usuarios
 import org.springframework.security.core.userdetails.UserDetailsService; // Interface que define algo que busca os usuários
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder; // Implementação específica do algoritmo de Hash BCrypt, sendo o mais utilizado e popular para criptografar senhas
 import org.springframework.security.crypto.password.PasswordEncoder; // Inteface genérica de codificador de senhas, podendo trocar o algoritmo no futuro se necessário
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.Arrays;
+import java.util.List;
+
+import static org.springframework.security.config.Customizer.withDefaults; // Static import para usar as configurações padrão do Spring usado no .httpBasic(withDefaults()))
+// Criptografia e dados de usuarios
 
 @Configuration // Indica que essa classe é uma classe de configuração do Spring
 @EnableWebSecurity // Habilita a segurança web do Spring Security
@@ -32,13 +39,14 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
         http
+                .cors(withDefaults()) // Ativar o CORS no Spring Security
                 .csrf(AbstractHttpConfigurer::disable) // Desabilita a proteção CSRF (Cross-Site Request Forgery)
                 .authorizeHttpRequests(auth -> auth // Configura as regras de autorização para requisições HTTP
                         .requestMatchers("/h2-console/**").permitAll() // Permite acesso livre às URLs do console H2
-                        .requestMatchers("/api/usuarios").permitAll() // Permite acesso livro apenas ao cadastro de
-                                                                      // usuarios
+                        .requestMatchers("/api/usuarios").permitAll() // Liberar Cadastro
                         // Liberar o Swagger
                         .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
+                        .requestMatchers("/api/produtos").permitAll() // Liberar o GET para testar sem login
                         .anyRequest().authenticated() // Exige autenticação para qualquer outra requisição
                 )
                 .httpBasic(withDefaults());
@@ -47,6 +55,27 @@ public class SecurityConfig {
                                                                                  // carregado em um frame da mesma
                                                                                  // origem
         return http.build(); // Constrói e retorna a cadeia de filtros de segurança configurada
+    }
+
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+
+        // Permite apenas o frontend por segurança
+        configuration.setAllowedOrigins(List.of("http://localhost:5173"));
+
+        // Permite os métodos comuns, GET para listar, POST para criar e etc
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+
+        // Permite quaisquer cabeçalhos
+        configuration.setAllowedHeaders(List.of("*"));
+
+        // Autenticação de Cookies e Tokens
+        configuration.setAllowCredentials(true);
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
     }
 
     @Bean // Cria a ferramenta de criptografia para usar em qualquer lugar

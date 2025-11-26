@@ -23,6 +23,7 @@ public class NotaFiscalDTO {
     private List<Map<String, Object>> itens; // Lista simplificada para impressão
     private Double valorTotal;
     private Double impostosEstimados;
+    private List<Map<String, Object>> pagamentos;
 
     // Getters e Setters
     public String getNomeLoja() {
@@ -103,5 +104,13 @@ public class NotaFiscalDTO {
 
     public void setImpostosEstimados(Double impostosEstimados) {
         this.impostosEstimados = impostosEstimados;
+    }
+
+    public List<Map<String, Object>> getPagamentos() {
+        return pagamentos;
+    }
+
+    public void setPagamentos(List<Map<String, Object>> pagamentos) {
+        this.pagamentos = pagamentos;
     }
 }

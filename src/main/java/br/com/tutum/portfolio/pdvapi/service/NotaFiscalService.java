@@ -45,11 +45,11 @@ public class NotaFiscalService {
             nota.setNomeCliente("Consumidor não identificado");
         }
 
-        // 5 Passo: Impostos
+        // 5 Passo: Valores Totais
         nota.setValorTotal(venda.getValorTotal());
         nota.setImpostosEstimados(venda.getValorTotal() * 0.30);
 
-        // 5.1 Passo: Converter os itens para um formato simples de leitura
+        // 6 Passo: Preenchimento da Lista de Itens
         List<Map<String, Object>> itensFormatados = new ArrayList<>();
         venda.getItens().forEach(item -> {
             Map<String, Object> linha = new HashMap<>();
@@ -61,6 +61,17 @@ public class NotaFiscalService {
         });
         nota.setItens(itensFormatados);
 
+        // 7 Passo: Preencher a lista de pagamentos
+        List<Map<String, Object>> listaPagamentos = new ArrayList<>();
+        if (venda.getPagamentos() != null) {
+            venda.getPagamentos().forEach(pagamento -> {
+                Map<String, Object> map = new HashMap<>();
+                map.put("metodo", pagamento.getFormaPagamento().toString());
+                map.put("valor", pagamento.getValor());
+                listaPagamentos.add(map);
+            });
+        }
+        nota.setPagamentos(listaPagamentos);
         return nota;
     }
 }

@@ -35,9 +35,15 @@ public class Venda {
     @Column(nullable = false)
     private StatusVenda status = StatusVenda.ABERTA; // Sempre será aberta o começo da Venda
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "forma_pagamento")
-    private FormaPagamento formaPagamento; // Começa nulo e preenche no final
+    /*
+     * @Enumerated(EnumType.STRING)
+     * 
+     * @Column(name = "forma_pagamento")
+     * private FormaPagamento formaPagamento; Substituído por Pagamento
+     */
+
+    @OneToMany(mappedBy = "venda", cascade = CascadeType.ALL)
+    private List<Pagamento> pagamentos = new ArrayList<>();
 
     @ManyToOne
     @JoinColumn(name = "caixa_id", nullable = false)
@@ -102,12 +108,12 @@ public class Venda {
         this.status = status;
     }
 
-    public FormaPagamento getFormaPagamento() {
-        return formaPagamento;
+    public List<Pagamento> getPagamentos() {
+        return pagamentos;
     }
 
-    public void setFormaPagamento(FormaPagamento formaPagamento) {
-        this.formaPagamento = formaPagamento;
+    public void setPagamentos(List<Pagamento> pagamentos) {
+        this.pagamentos = pagamentos;
     }
 
     public Caixa getCaixa() {

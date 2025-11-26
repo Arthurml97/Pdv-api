@@ -8,6 +8,7 @@ import br.com.tutum.portfolio.pdvapi.model.StatusVenda;
 import br.com.tutum.portfolio.pdvapi.model.Caixa;
 import br.com.tutum.portfolio.pdvapi.model.FormaPagamento;
 import br.com.tutum.portfolio.pdvapi.model.Cliente;
+import br.com.tutum.portfolio.pdvapi.model.Pagamento;
 import br.com.tutum.portfolio.pdvapi.repository.ProdutoRepository;
 import br.com.tutum.portfolio.pdvapi.repository.UsuarioRepository;
 import br.com.tutum.portfolio.pdvapi.repository.VendaRepository;
@@ -143,22 +144,45 @@ public class VendaService {
             clienteRepository.save(cliente);
         }
 
-        // 4 Passo: Atualização dos dados
-        venda.setFormaPagamento(dto.getFormaPagamento());
+        // 4 Passo: Processar os pagamentos
+        double totalPago = 0.0;
+        double totalEmDinheiro = 0.0;
+
+        for (FinalizarVendaDTO.PagamentoInput input : dto.getPagamentos()) {
+            // Cria o objeto Pagamento e vincula à venda
+            Pagamento pagamento = new Pagamento(venda, input.getMetodo(), input.getValor());
+            venda.getPagamentos().add(pagamento);
+
+            totalPago += input.getValor();
+
+            // Se for dinheiro, soma para atualizar o caixa depois
+            if (input.getMetodo() == FormaPagamento.DINHEIRO) {
+                totalEmDinheiro += input.getValor();
+            }
+        }
+        // 5 Passo: Validar se o valor pago bate com o total
+        if (Math.abs(totalPago - venda.getValorTotal()) > 0.01) {
+            if (totalPago < venda.getValorTotal()) {
+                throw new RegraDeNegocioException("O valor pago é menor que o total da venda.");
+            }
+        }
+
+        // 6 Atualizar o Status
         venda.setStatus(StatusVenda.FINALIZADA);
 
-        // 5 Passo: Atualizar o saldo do caixa
-        if (dto.getFormaPagamento() == FormaPagamento.DINHEIRO) {
-            Caixa caixa = venda.getCaixa(); // Pega o caixa vinculado a esta venda
+        // 7 Atualizar o caixa
+        if (totalEmDinheiro > 0) {
+            Caixa caixa = venda.getCaixa();
 
-            // 5.1 Passo: Somar o total da venda no saldo atual do caixa
-            double novoSaldo = caixa.getSaldoAtual() + venda.getValorTotal();
-            caixa.setSaldoAtual(novoSaldo);
+            // Se houver troco, subtraimos o troco da entrada do caixa
+            double troco = totalPago - venda.getValorTotal();
+            double entradaRealCaixa = totalEmDinheiro - (troco > 0 ? troco : 0);
 
+            caixa.setSaldoAtual(caixa.getSaldoAtual() + entradaRealCaixa);
             caixaRepository.save(caixa);
         }
 
-        // 6 Passo: Salvar
+        // 8 Passo: Salvar
         return vendaRepository.save(venda);
     }
 
