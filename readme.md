@@ -2,6 +2,8 @@
 
 Uma API REST robusta desenvolvida com **Java 21** e **Spring Boot 3** para gerenciar as operações de caixa de um supermercado. O projeto foca em boas práticas de engenharia de software, segurança (Spring Security) e escalabilidade.
 
+> **Nota:** Este é o repositório do Backend. Para acessar o Frontend, [clique aqui](https://github.com/Arthurml97/pdv-frontend)
+
 ## Vídeo Introdutório sobre a Aplicação
 
 https://github.com/user-attachments/assets/5b0c6293-d66f-4be4-829c-327c865c4fe3
