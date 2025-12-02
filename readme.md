@@ -1,10 +1,12 @@
-# 🛒 PDV API - Sistema de Ponto de Venda
-
-> Status: API FINALIZADA, pronta para produção. Próximo passo: implementar o frontend.
+#  PDV API - Sistema de Ponto de Venda
 
 Uma API REST robusta desenvolvida com **Java 21** e **Spring Boot 3** para gerenciar as operações de caixa de um supermercado. O projeto foca em boas práticas de engenharia de software, segurança (Spring Security) e escalabilidade.
 
-## 💡 Motivação
+## Vídeo Introdutório sobre a Aplicação
+
+https://github.com/user-attachments/assets/5b0c6293-d66f-4be4-829c-327c865c4fe3
+
+## Motivação
 
 A inspiração para este projeto nasceu da observação cotidiana em supermercados. Frequentemente, noto que os sistemas comerciais atuais apresentam interfaces complexas, lentidão e gargalos de integração que resultam em filas e experiências frustrantes tanto para operadores quanto para clientes.
 
@@ -17,7 +19,7 @@ Este é um projeto de **autoestudo intensivo** com o objetivo de aprimorar minha
 
 Desenvolvi um roadmap inicial com as funções essenciais, mas o projeto evoluirá constantemente com novas funcionalidades para simular um cenário real e robusto.
 
-## 🚀 Tecnologias Utilizadas
+## Tecnologias Utilizadas
 
 * **Java 21** (LTS)
 * **Spring Boot 3.x**
@@ -28,7 +30,7 @@ Desenvolvi um roadmap inicial com as funções essenciais, mas o projeto evoluir
 * **PostgreSQL** (Banco para produção - planejado)
 * **Maven** (Gerenciamento de dependências)
 
-## ⚙️ Roadmap e Funcionalidades
+## Roadmap e Funcionalidades
 
 ### ✅ Fase 1: Fundação (Concluído)
 - [x] Configuração do ambiente e arquitetura em camadas.
@@ -61,7 +63,7 @@ Desenvolvi um roadmap inicial com as funções essenciais, mas o projeto evoluir
 - [x] **Documentação Automática:** Swagger UI / OpenAPI configurado e seguro.
 - [x] **Nota Fiscal:** Simulação de emissão de documento fiscal (JSON com impostos e chave).
 
-## 🛠️ Como Executar o Projeto
+## Como Executar o Projeto
 
 ### Pré-requisitos
 - Java JDK 21 instalado.
@@ -92,24 +94,24 @@ cd pdv-api
 - **Password:** `password`
 
 
-## 🔌 Documentação da API (Endpoints Principais)
+## Documentação da API (Endpoints Principais)
 
 O projeto utiliza **HTTP Basic Auth**. Para acessar rotas protegidas, é necessário enviar o cabeçalho de autenticação (`Authorization`).
 
-### 👤 Usuários e Clientes
+### Usuários e Clientes
 | Método | Endpoint | Descrição | Acesso |
 |---|---|---|---|
 | `POST` | `/api/usuarios` | Cadastra um funcionário (Supervisor/Atendente) | 🔓 Público |
 | `POST` | `/api/clientes` | Cadastra um cliente para fidelidade | 🔓 Público |
 | `GET` | `/api/clientes/{cpf}` | Consulta saldo de pontos do cliente | 🔓 Público |
 
-### 📦 Produtos
+### Produtos
 | Método | Endpoint | Descrição | Acesso |
 |---|---|---|---|
 | `GET` | `/api/produtos` | Lista todos os produtos | 🔒 Requer Login |
 | `POST` | `/api/produtos` | Cadastra um novo produto | 🔒 Requer Login |
 
-### 🛒 Vendas e Caixa
+### Vendas e Caixa
 | Método | Endpoint | Descrição | Acesso |
 |---|---|---|---|
 | `POST` | `/api/caixas/abrir` | Abre o turno do caixa | 🔒 Supervisor |
@@ -118,7 +120,7 @@ O projeto utiliza **HTTP Basic Auth**. Para acessar rotas protegidas, é necess�
 | `POST` | `/api/vendas/{id}/itens` | Adiciona item na venda | 🔒 Requer Login |
 | `POST` | `/api/vendas/{id}/finalizar` | Finaliza venda e gera pontos | 🔒 Requer Login |
 
-## 🗂️ Estrutura do Projeto
+## Estrutura do Projeto
 
 O projeto segue rigorosamente a **Arquitetura em Camadas**:
 
@@ -129,6 +131,6 @@ O projeto segue rigorosamente a **Arquitetura em Camadas**:
  * 📂 `repository`: Camada de acesso a dados (Interfaces JPA).
  * 📂 `model`: Entidades (Banco de Dados) e Enums.
 
-## 👨‍💻 Autor
+## Autor
 
 Desenvolvido por **Arthur Liscano** como parte do portfólio de Desenvolvimento Backend Java.
